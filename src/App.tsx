@@ -19,8 +19,8 @@ const ReviewDashboard = () => {
     performance: []
   });
   const [reviews, setReviews] = useState<Review[]>([]);
-  const [selectedCategory, setSelectedCategory] = useState('all');
-  const [selectedWord, setSelectedWord] = useState<string | null>(null);
+  const [selectedCategory] = useState('all');
+  const [selectedWord] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const cleanText = (text: string | undefined) => {
@@ -130,11 +130,7 @@ const ReviewDashboard = () => {
     return filtered;
   };
 
-  const maxCount = Math.max(
-    ...Object.values(categoryData)
-      .flat()
-      .map(item => item.count)
-  );
+
 
   return (
     <div className="max-w-6xl mx-auto p-4 bg-white rounded-lg shadow">
