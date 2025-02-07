@@ -3,16 +3,24 @@ import * as XLSX from 'xlsx';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
 import './App.css';  // Optional, remove if unnecessary
 
+// Define the structure of a review
+interface Review {
+  rating: string;
+  text: string;
+  date: string;
+  reviewer: string;
+}
+
 const ReviewDashboard = () => {
-  const [categoryData, setCategoryData] = useState({
+  const [categoryData, setCategoryData] = useState<{ [key: string]: { word: string; count: number }[] }>({
     quality: [],
     service: [],
     technical: [],
     performance: []
   });
-  const [reviews, setReviews] = useState([]);
+  const [reviews, setReviews] = useState<Review[]>([]);
   const [selectedCategory, setSelectedCategory] = useState('all');
-  const [selectedWord, setSelectedWord] = useState(null);
+  const [selectedWord, setSelectedWord] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   const cleanText = (text: string | undefined) => {
@@ -49,7 +57,7 @@ const ReviewDashboard = () => {
   };
 
   const processData = (data: any[]) => {
-    const processedReviews = data.map(review => ({
+    const processedReviews: Review[] = data.map((review: any) => ({
       rating: review.Rating || 'FIVE',
       text: cleanText(review['Review Text']) || '',
       date: review.Date ? new Date(review.Date).toISOString().split('T')[0] : '',
@@ -73,7 +81,7 @@ const ReviewDashboard = () => {
       });
     });
 
-    const processedCategories: any = {};
+    const processedCategories: { [key: string]: { word: string; count: number }[] } = {};
     Object.entries(categories).forEach(([category, keywords]) => {
       processedCategories[category] = keywords
         .map(word => ({
@@ -92,7 +100,7 @@ const ReviewDashboard = () => {
 
   const getDisplayData = () => {
     return Object.entries(categoryData)
-      .flatMap(([category, words]) => 
+      .flatMap(([category, words]) =>
         words.map(item => ({
           ...item,
           category
@@ -103,22 +111,22 @@ const ReviewDashboard = () => {
 
   const getFilteredReviews = () => {
     let filtered = [...reviews];
-    
+
     if (selectedWord) {
-      filtered = filtered.filter(review => 
+      filtered = filtered.filter(review =>
         review.text.toLowerCase().includes(selectedWord.toLowerCase())
       );
     } else if (selectedCategory !== 'all') {
-      const categoryWords = categoryData[selectedCategory].map(item => 
+      const categoryWords = categoryData[selectedCategory].map(item =>
         item.word.toLowerCase()
       );
-      filtered = filtered.filter(review => 
-        categoryWords.some(word => 
+      filtered = filtered.filter(review =>
+        categoryWords.some(word =>
           review.text.toLowerCase().includes(word)
         )
       );
     }
-    
+
     return filtered;
   };
 
@@ -131,7 +139,7 @@ const ReviewDashboard = () => {
   return (
     <div className="max-w-6xl mx-auto p-4 bg-white rounded-lg shadow">
       <h1 className="text-2xl font-bold mb-6">Review Analysis Dashboard</h1>
-      
+
       {/* File Upload */}
       <div className="mb-6">
         <input
@@ -165,18 +173,17 @@ const ReviewDashboard = () => {
         <div className="text-sm text-gray-600 mb-4">
           Showing {getFilteredReviews().length} of {reviews.length} reviews
         </div>
-        
+
         <div className="space-y-4">
           {getFilteredReviews().map((review, index) => (
             <div key={index} className="border rounded-lg p-4 hover:shadow-md transition-shadow">
               <div className="flex justify-between items-center mb-2">
                 <div className="text-yellow-400 text-lg">
                   {'★'.repeat(
-                    review.rating === 'FIVE' ? 5 : 
-                    review.rating === 'FOUR' ? 4 : 
-                    review.rating === 'THREE' ? 3 : 
-                    review.rating === 'TWO' ? 2 : 
-                    review.rating === 'ONE' ? 1 : 5
+                    review.rating === 'FIVE' ? 5 :
+                      review.rating === 'FOUR' ? 4 :
+                        review.rating === 'THREE' ? 3 :
+                          review.rating === 'TWO' ? 2 : 1
                   )}
                 </div>
                 <div className="text-sm text-gray-600">
